@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hups.orgs.dao.BdDeptdocMapperExpand">
+
+    <!--查询数据表中数量-->
+    <select id="countData" resultType="java.lang.Long">
+        SELECT count(pk_deptdoc)
+        FROM
+        bd_deptdoc
+        WHERE
+        dr = 0
+        <if test="bdDeptdocPo != null and bdDeptdocPo.deptname != null and bdDeptdocPo.deptname != ''">
+            and deptname LIKE '%'+#{bdCorp.deptname}+'%'
+        </if>
+    </select>
+
+    <!--分页查询数据-->
+    <select id="selectAllBdDeptdocAsPage" resultType="cn.hups.orgs.po.BdDeptdocPo">
+        SELECT
+        dept.pk_deptdoc as pkDeptdoc,
+        dept.deptname,
+        dept.deptshortname,
+        dept.deptcode,
+        dept.pk_corp as pkCorp,
+        dept.pk_psndoc as pkPsndoc,
+        dept.canceled,
+        dept.canceldate,
+        dept.memo,
+        dept.def1,
+        dept.def2,
+        dept.def3,
+        dept.def4,
+        dept.def5,
+        dept.creator,
+        dept.creationtime,
+        dept.dr,
+        dept.ts
+        FROM
+        bd_deptdoc dept
+        WHERE
+        dept.dr = 0
+        <if test="bdDeptdocPo != null and bdDeptdocPo.deptname != null and bdDeptdocPo.deptname != ''">
+            and dept.deptname LIKE '%'+#{bdCorp.deptname}+'%'
+        </if>
+    </select>
+
+    <!--根据主键集合删除数据-->
+    <update id="deleteBdDeptdocByPks" parameterType="java.util.List">
+        UPDATE bd_deptdoc SET dr = 1
+        WHERE pk_corp in
+        <foreach collection="pkArr" item="pk_deptdoc" open="(" close=")" separator=",">
+            #{pk_deptdoc}
+        </foreach>
+    </update>
+
+    <!--根据公司查询部门信息作为参照-->
+    <select id="selectAllBdDeptdocAsRef" resultType="cn.hups.common.po.ClientRefPo">
+        SELECT
+        pk_deptdoc as value,
+        deptname as label
+        FROM
+        bd_deptdoc
+        WHERE dr = 0
+    </select>
+</mapper>

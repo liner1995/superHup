@@ -1,0 +1,26 @@
+spring:
+  #数据库相关
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+#    url: jdbc:mysql://127.0.0.1:3306/cyjc?useUnicode=true&zeroDateTimeBehavior=convertToNull&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&serverTimezone=GMT%2B8
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/cyjc?useUnicode=true&characterEncoding=utf8
+    username: root
+    password: root
+    hikari:
+      max-lifetime: 30000
+#日志级别
+logging:
+  level:
+    cn.hups.*: debug
+mybatis:
+  mapper-locations: classpath:cn/hups/*/dao/*.xml
+server:
+  servlet:
+    context-path: /hups
+  port: 8082
+#flowable框架相关
+flowable:
+  common:
+    app:
+      idm-url: http://127.0.0.1:8083/flowable-idm

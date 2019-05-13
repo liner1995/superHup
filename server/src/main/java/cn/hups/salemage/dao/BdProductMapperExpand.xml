@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hups.salemage.dao.BdProductMapperExpand">
+
+    <!--查询数据表中数量-->
+    <select id="countData" resultType="java.lang.Long">
+        SELECT count(bp.pk_product)
+        FROM
+        bd_product bp
+        LEFT JOIN bd_customer bcu on bp.pk_customer = bcu.pk_customer AND bcu.dr = 0
+        WHERE
+        bp.dr = 0
+        <if test="bdProductPo != null and bdProductPo.name != null and bdProductPo.name != ''">
+            and bp.name = #{bdProductPo.name}
+        </if>
+        <if test="bdProductPo != null and bdProductPo.billState != null">
+            and bp.bill_state = #{bdProductPo.billState}
+        </if>
+        <!--查询模板条件-->
+        <if test="bdProductPo != null and bdProductPo.productCode != null and bdProductPo.productCode != ''">
+            and bp.code = #{bdProductPo.productCode}
+        </if>
+        <if test="bdProductPo != null and bdProductPo.pkPsndoc != null">
+            and bp.pk_psndoc = #{bdProductPo.pkPsndoc}
+        </if>
+        <if test="bdProductPo != null and bdProductPo.customShortName != null and bdProductPo.customShortName != ''">
+            and bcu.name = #{bdProductPo.customShortName}
+        </if>
+        <if test="bdProductPo != null and bdProductPo.billState != null">
+            and bp.bill_state = #{bdProductPo.billState}
+        </if>
+        <if test="bdProductPo != null and bdProductPo.creationdateBegin != null and bdProductPo.creationdateBegin != ''
+                                      and bdProductPo.creationdateEnd != null and bdProductPo.creationdateEnd != ''">
+            and bp.creationtime BETWEEN #{bdProductPo.creationdateBegin} AND #{bdProductPo.creationdateEnd}
+        </if>
+    </select>
+
+    <!--分页查询数据-->
+    <select id="selectAllProductAsPage" resultType="cn.hups.salemage.po.BdProductPo">
+        SELECT
+        bp.pk_product as pkProduct,
+        bp.name,
+        bp.code,
+        bp.model,
+        bp.pk_psndoc as pkPsndoc,
+        bp.purchase_contacts as purchaseContacts,
+        bp.skill_contacts as skillContacts,
+        bp.smt,
+        bp.dip,
+        bp.isinstal,
+        bp.instal_min as instalMin,
+        bp.istest,
+        bp.test_min as testMin,
+        bp.isaging,
+        bp.aging_min as agingMin,
+        bp.exe_standard as exeStandard,
+        bp.steel_mesh_source as steelMeshSource,
+        bp.defense,
+        bp.defense_area as defenseArea,
+        bp.seal_technics as sealTechnics,
+        bp.material_source as materialSource,
+        bp.ispcb,
+        bp.pcb_long as pcbLong,
+        bp.pcb_wide as pcbWide,
+        bp.pcb_thick as pcbThick,
+        bp.pcb_resist_color as pcbResistColor,
+        bp.pcb_char_color as pcbCharColor,
+        bp.pcb_resist_cover as pcbResistCover,
+        bp.pcb_pad_spary as pcbPadSpary,
+        bp.pcb_copper_thick as pcbCopperThick,
+        bp.pk_customer as pkCustomer,
+        bcu.name as customerName,
+        bp.order_number as orderNumber,
+        bp.order_number as orderNumber,
+        bp.bom_filename as bomFilename,
+        bp.bom_filefullname as bomFilefullname,
+        bp.pcb_filename as pcbFilename,
+        bp.pcb_filefullname as pcbFilefullname,
+        bp.craft_filename as craftFilename,
+        bp.craft_filefullname as craftFilefullname,
+        bp.ismake_tool as ismakeTool,
+        bp.make_steel_mesh as makeSteelMesh,
+        bp.make_dip as makeDip,
+        bp.make_test as makeTest,
+        bp.make_defense as makeDefense,
+        bp.make_aging as makeAging,
+        bp.task_id as taskId,
+        bp.approver,
+        sutre.user_name as approverShow,
+        bp.approvetime,
+        bp.bill_state as billState,
+        bp.creator,
+        su.user_name as creatorShow,
+        bp.creationtime,
+        bp.modifier,
+        sut.user_name as modifierShow,
+        bp.modifiedtime,
+        bp.dr,
+        bp.ts
+        FROM
+        bd_product bp
+        LEFT JOIN bd_customer bcu on bp.pk_customer = bcu.pk_customer AND bcu.dr = 0
+        LEFT JOIN sm_user su on bp.creator = su.userid AND su.dr = 0
+        LEFT JOIN sm_user sut on bp.modifier = sut.userid AND su.dr = 0
+        LEFT JOIN sm_user sutre on bp.approver = sutre.userid AND su.dr = 0
+        WHERE
+        bp.dr = 0
+        <if test="bdProductPo != null and bdProductPo.name != null and bdProductPo.name != ''">
+            and bp.name = #{bdProductPo.name}
+        </if>
+        <if test="bdProductPo != null and bdProductPo.billState != null">
+            and bp.bill_state = #{bdProductPo.billState}
+        </if>
+        <!--查询模板条件-->
+        <if test="bdProductPo != null and bdProductPo.productCode != null and bdProductPo.productCode != ''">
+            and bp.code = #{bdProductPo.productCode}
+        </if>
+        <if test="bdProductPo != null and bdProductPo.pkPsndoc != null">
+            and bp.pk_psndoc = #{bdProductPo.pkPsndoc}
+        </if>
+        <if test="bdProductPo != null and bdProductPo.customShortName != null and bdProductPo.customShortName != ''">
+            and bcu.name = #{bdProductPo.customShortName}
+        </if>
+        <if test="bdProductPo != null and bdProductPo.billState != null">
+            and bp.bill_state = #{bdProductPo.billState}
+        </if>
+        <if test="bdProductPo != null and bdProductPo.creationdateBegin != null and bdProductPo.creationdateBegin != ''
+                                      and bdProductPo.creationdateEnd != null and bdProductPo.creationdateEnd != ''">
+            and bp.creationtime BETWEEN #{bdProductPo.creationdateBegin} AND #{bdProductPo.creationdateEnd}
+        </if>
+    </select>
+
+    <!--根据主键集合删除数据-->
+    <update id="deleteProductByPs" parameterType="java.util.List">
+        UPDATE bd_product SET dr = 1
+        WHERE pk_product in
+        <foreach collection="pkArr" item="pk_product" open="(" close=")" separator=",">
+            #{pk_product}
+        </foreach>
+    </update>
+
+    <!--认领工艺审核任务-->
+    <update id="claimTecaudit">
+        UPDATE bd_product SET task_id = #{taskId},approver = #{userid}
+        WHERE pk_product = #{pkProduct} AND dr = 0
+    </update>
+</mapper>

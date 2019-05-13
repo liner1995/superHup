@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hups.purchase.dao.BillPurchaseQuoteMapperExpand">
+
+    <!--查询数据表中数量-->
+    <select id="countData" resultType="java.lang.Long">
+        SELECT count(bpq.pk_purchase_quote)
+        FROM
+        bill_purchase_quote bpq
+        LEFT JOIN bd_customer bcu on bpq.pk_customer = bcu.pk_customer AND bcu.dr = 0
+        LEFT JOIN bd_product bpro on bpq.pk_product = bpro.pk_product AND bpro.dr = 0
+        WHERE
+        bpq.dr = 0
+        <!--查询模板条件-->
+        <if test="billPurchaseQuotePo != null and billPurchaseQuotePo.productCode != null and billPurchaseQuotePo.productCode != ''">
+            and bpro.code = #{billPurchaseQuotePo.productCode}
+        </if>
+        <if test="billPurchaseQuotePo != null and billPurchaseQuotePo.pkPsndoc != null">
+            and bpq.pk_psndoc = #{billPurchaseQuotePo.pkPsndoc}
+        </if>
+        <if test="billPurchaseQuotePo != null and billPurchaseQuotePo.customShortName != null and billPurchaseQuotePo.customShortName != ''">
+            and bcu.name = #{billPurchaseQuotePo.customShortName}
+        </if>
+        <if test="billPurchaseQuotePo != null and billPurchaseQuotePo.billState != null">
+            and bpq.bill_state = #{billPurchaseQuotePo.billState}
+        </if>
+        <if test="billPurchaseQuotePo != null and billPurchaseQuotePo.creationdateBegin != null and billPurchaseQuotePo.creationdateBegin != ''
+                                      and billPurchaseQuotePo.creationdateEnd != null and billPurchaseQuotePo.creationdateEnd != ''">
+            and bpq.creationtime BETWEEN #{billPurchaseQuotePo.creationdateBegin} AND #{billPurchaseQuotePo.creationdateEnd}
+        </if>
+    </select>
+
+    <!--分页查询数据-->
+    <select id="selectAllPurchaseQuoteAsPage" resultType="cn.hups.purchase.po.BillPurchaseQuotePo">
+        SELECT
+        bpq.pk_purchase_quote as pkPurchaseQuote,
+        bpq.contractno,
+        bpq.pk_customer as pkCustomer,
+        bcu.code as customerCode,
+        bpq.pk_psndoc as pkPsndoc,
+        bpq.pk_product as pkProduct,
+        bpro.code as productCode,
+        bpro.name as productName,
+        bpro.model as productModel,
+        bpro.order_number as productOrderNumber,
+        bpro.material_source as productMaterialSource,
+        bpq.purchase_price as purchasePrice,
+        bpq.purchase_total as purchaseTotal,
+        bpq.quote_end_date as quoteEndDate,
+        bpq.file_name as fileName,
+        bpq.file_fullname as fileFullname,
+        bpq.task_id as taskId,
+        bpq.bill_state as billState,
+        bpq.approver,
+        su.user_name as approverShow,
+        bpq.approvetime,
+        bpq.dr,
+        bpq.ts
+        FROM
+        bill_purchase_quote bpq
+        LEFT JOIN bd_customer bcu on bpq.pk_customer = bcu.pk_customer AND bcu.dr = 0
+        LEFT JOIN bd_product bpro on bpq.pk_product = bpro.pk_product AND bpro.dr = 0
+        LEFT JOIN sm_user su on su.userid = bpq.approver and su.dr = 0
+        WHERE
+        bpq.dr = 0
+        <!--查询模板条件-->
+        <if test="billPurchaseQuotePo != null and billPurchaseQuotePo.productCode != null and billPurchaseQuotePo.productCode != ''">
+            and bpro.code = #{billPurchaseQuotePo.productCode}
+        </if>
+        <if test="billPurchaseQuotePo != null and billPurchaseQuotePo.pkPsndoc != null">
+            and bpq.pk_psndoc = #{billPurchaseQuotePo.pkPsndoc}
+        </if>
+        <if test="billPurchaseQuotePo != null and billPurchaseQuotePo.customShortName != null and billPurchaseQuotePo.customShortName != ''">
+            and bcu.name = #{billPurchaseQuotePo.customShortName}
+        </if>
+        <if test="billPurchaseQuotePo != null and billPurchaseQuotePo.billState != null">
+            and bpq.bill_state = #{billPurchaseQuotePo.billState}
+        </if>
+        <if test="billPurchaseQuotePo != null and billPurchaseQuotePo.creationdateBegin != null and billPurchaseQuotePo.creationdateBegin != ''
+                                      and billPurchaseQuotePo.creationdateEnd != null and billPurchaseQuotePo.creationdateEnd != ''">
+            and bpq.approvetime BETWEEN #{billPurchaseQuotePo.creationdateBegin} AND #{billPurchaseQuotePo.creationdateEnd}
+        </if>
+    </select>
+
+    <!--根据主键集合删除数据-->
+    <update id="deletePurchaseQuoteByPks" parameterType="java.util.List">
+        UPDATE bill_purchase_quote SET dr = 1
+        WHERE pk_purchase_quote in
+        <foreach collection="pkArr" item="pk_purchase_quote" open="(" close=")" separator=",">
+            #{pk_purchase_quote}
+        </foreach>
+    </update>
+
+    <!--认领采购报价任务-->
+    <update id="claimPurchaseQuote">
+        UPDATE bill_purchase_quote SET task_id = #{taskId},approver = #{userid}
+        WHERE pk_product = #{pkProduct} AND dr = 0
+    </update>
+</mapper>
