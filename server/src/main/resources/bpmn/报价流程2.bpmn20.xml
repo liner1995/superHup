@@ -6,15 +6,15 @@
         <parallelGateway id="sid-B2F6C38B-40F2-4E7C-9912-46379DDF8C98"></parallelGateway>
         <sequenceFlow id="sid-99A53002-4AA0-44D7-9E6B-0C38A8748EB3" sourceRef="startEvent1" targetRef="sid-B2F6C38B-40F2-4E7C-9912-46379DDF8C98"></sequenceFlow>
         <userTask id="sid-0E202132-CB3F-49A5-A11F-39A80F32F8BB" name="采购报价_#{flowTitle}" flowable:candidateGroups="采购人员"></userTask>
-        <userTask id="sid-2E34B26C-8FD5-4D70-BE77-E9CEB5D12BEF" name="工艺审核_#{flowTitle" flowable:candidateGroups="工艺人员"></userTask>
-        <userTask id="sid-8A312599-1D96-40EB-A9C9-2398943B51D2" name="生产报价_#{flowTitle" flowable:candidateGroups="生产人员"></userTask>
+        <userTask id="sid-2E34B26C-8FD5-4D70-BE77-E9CEB5D12BEF" name="工艺审核_#{flowTitle}" flowable:candidateGroups="工艺人员"></userTask>
+        <userTask id="sid-8A312599-1D96-40EB-A9C9-2398943B51D2" name="生产报价_#{flowTitle}" flowable:candidateGroups="生产人员"></userTask>
         <sequenceFlow id="sid-CD6E427E-77B2-4F07-B429-0AB41B95DE19" sourceRef="sid-B2F6C38B-40F2-4E7C-9912-46379DDF8C98" targetRef="sid-2E34B26C-8FD5-4D70-BE77-E9CEB5D12BEF"></sequenceFlow>
         <sequenceFlow id="sid-3CF692F4-B312-4FDC-9C98-4C9358EBB2C9" sourceRef="sid-B2F6C38B-40F2-4E7C-9912-46379DDF8C98" targetRef="sid-0E202132-CB3F-49A5-A11F-39A80F32F8BB"></sequenceFlow>
         <sequenceFlow id="sid-203F70DF-FFA4-4177-BFFA-6E936CBC80F5" sourceRef="sid-2E34B26C-8FD5-4D70-BE77-E9CEB5D12BEF" targetRef="sid-8A312599-1D96-40EB-A9C9-2398943B51D2"></sequenceFlow>
         <parallelGateway id="sid-60521510-F8F8-4EF1-9492-6B04E088096D"></parallelGateway>
         <sequenceFlow id="sid-3549D722-793C-431D-A077-790F0FB6BAFB" sourceRef="sid-0E202132-CB3F-49A5-A11F-39A80F32F8BB" targetRef="sid-60521510-F8F8-4EF1-9492-6B04E088096D"></sequenceFlow>
         <sequenceFlow id="sid-84804687-C668-475F-B5D1-993F70BED987" sourceRef="sid-8A312599-1D96-40EB-A9C9-2398943B51D2" targetRef="sid-60521510-F8F8-4EF1-9492-6B04E088096D"></sequenceFlow>
-        <userTask id="sid-D7FA0B01-355D-40D8-8643-3E30FAE1FA69" name="销售报价_#{flowTitle">
+        <userTask id="sid-D7FA0B01-355D-40D8-8643-3E30FAE1FA69" name="销售报价_#{flowTitle}">
             <extensionElements>
                 <flowable:taskListener event="create" class="cn.hups.flowproccess.listeners.QuoteTaskListener"></flowable:taskListener>
             </extensionElements>
