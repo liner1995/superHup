@@ -52,6 +52,10 @@
         LEFT JOIN sm_user sut on sut.userid = bpq.approver and su.dr = 0
         WHERE
         bpq.dr = 0
+        <!--任务认领查询条件-->
+        <if test="billProduceQuoteHPo != null and billProduceQuoteHPo.approver != null">
+            and bpq.approver = #{billProduceQuoteHPo.approver}
+        </if>
         <!--查询模板条件-->
         <if test="billProduceQuoteHPo != null and billProduceQuoteHPo.productCode != null and billProduceQuoteHPo.productCode != ''">
             and bpro.code = #{billProduceQuoteHPo.productCode}
@@ -118,6 +122,10 @@
         LEFT JOIN bd_product bpro on bpq.pk_product = bpro.pk_product AND bpro.dr = 0
         WHERE
         bpq.dr = 0
+        <!--任务认领查询条件-->
+        <if test="billProduceQuoteHPo != null and billProduceQuoteHPo.approver != null">
+            and bpq.approver = #{billProduceQuoteHPo.approver}
+        </if>
         <!--查询模板条件-->
         <if test="billProduceQuoteHPo != null and billProduceQuoteHPo.productCode != null and billProduceQuoteHPo.productCode != ''">
             and bpro.code = #{billProduceQuoteHPo.productCode}

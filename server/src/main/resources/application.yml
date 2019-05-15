@@ -13,12 +13,13 @@ spring:
 logging:
   level:
     cn.hups.*: debug
+    org.flowable.*: debug
 mybatis:
   mapper-locations: classpath:cn/hups/*/dao/*.xml
 server:
   servlet:
     context-path: /hups
-  port: 8082
+  port: 8092
 #flowable框架相关
 flowable:
   common:

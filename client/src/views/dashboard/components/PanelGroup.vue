@@ -7,6 +7,8 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">待办事项</div>
+          <br/>
+          <el-badge :value="todoUserTaskLength" :max="99" class="item"></el-badge>
         </div>
       </div>
     </el-col>
@@ -17,6 +19,8 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">任务认领</div>
+          <br/>
+          <el-badge :value="claimUserTaskLength" :max="99" class="item"></el-badge>
         </div>
       </div>
     </el-col>
@@ -27,6 +31,8 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">已办事项</div>
+          <br/>
+          <el-badge :value="overUserTaskLength" :max="99" class="item"></el-badge>
         </div>
       </div>
     </el-col>
@@ -37,6 +43,8 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">预警消息</div>
+          <br/>
+          <el-badge :value="0" :max="99" class="item"></el-badge>
         </div>
       </div>
     </el-col>
@@ -47,6 +55,8 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">通知公告</div>
+          <br/>
+          <el-badge :value="0" :max="99" class="item"></el-badge>
         </div>
       </div>
     </el-col>
@@ -56,6 +66,7 @@
 <script>
 
 export default {
+  props: ["todoUserTaskLength", "claimUserTaskLength", "overUserTaskLength"],
   methods: {
     handleSetMsgView(type) {
       this.$emit('handleSetMsgView', type)
@@ -137,4 +148,5 @@ export default {
     }
   }
 }
+
 </style>

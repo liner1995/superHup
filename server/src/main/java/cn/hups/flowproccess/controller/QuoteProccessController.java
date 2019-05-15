@@ -15,14 +15,15 @@ import cn.hups.salemage.po.BdProductPo;
 import cn.hups.salemage.po.BillSaleQuotePo;
 import cn.hups.salemage.service.ISaleService;
 import cn.hups.technics.service.ITechnicsService;
-import org.flowable.engine.ProcessEngine;
-import org.flowable.engine.RepositoryService;
-import org.flowable.engine.RuntimeService;
-import org.flowable.engine.TaskService;
+import org.flowable.bpmn.model.BpmnModel;
+import org.flowable.engine.*;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.DeploymentBuilder;
+import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.image.ProcessDiagramGenerator;
 import org.flowable.task.api.Task;
+import org.flowable.task.api.history.HistoricTaskInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,10 +31,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,6 +78,7 @@ public class QuoteProccessController {
 
     /**
      * 部署报价流程
+     *
      * @return
      * @throws GlobalException
      */
@@ -92,7 +97,7 @@ public class QuoteProccessController {
             inputStream = resource.getInputStream();
             reader = factory.createXMLStreamReader(inputStream);
             DeploymentBuilder deploymentBuilder = repositoryService.createDeployment().name("QUOTE_FLOW").category("QUOTE")
-                    .addInputStream(filePath,inputStream);
+                    .addInputStream(filePath, inputStream);
             Deployment deployment = deploymentBuilder.deploy();
             ajaxJson.setObj(deployment);
         } catch (Exception e) {
@@ -110,6 +115,7 @@ public class QuoteProccessController {
 
     /**
      * 启动报价流程
+     *
      * @return
      * @throws GlobalException
      */
@@ -122,6 +128,7 @@ public class QuoteProccessController {
             Map<String, Object> variables = new HashMap<>();
             // 产品主键
             variables.put("pkProduct", quoteFlowParam.getPkProduct());
+            variables.put("flowTitle", quoteFlowParam.getFlowTitle());
             // 销售报价任务接收人
             String userId = quoteFlowParam.getUserid() == null ? "" : quoteFlowParam.getUserid() + "";
             if (StringUtils.isNotEmpty(userId)) {
@@ -138,6 +145,7 @@ public class QuoteProccessController {
 
     /**
      * 根据用户ID查询人员任务信息
+     *
      * @return
      */
     @RequestMapping("/selectTaskByUserId")
@@ -154,7 +162,6 @@ public class QuoteProccessController {
                 List<Task> taskUserList = taskService.createTaskQuery().taskAssignee(userId).list();
                 if (taskUserList != null && taskUserList.size() > 0) {
                     for (Task task : taskUserList) {
-                        System.out.println(task.getName());
                         FlowTaskPo flowTaskPo = new FlowTaskPo();
                         // 代办任务ID
                         String taskId = task.getId();
@@ -179,7 +186,6 @@ public class QuoteProccessController {
                     List<Task> taskGroupList = taskService.createTaskQuery().taskCandidateGroup(psnTypeName).list();
                     if (taskGroupList != null && taskGroupList.size() > 0) {
                         for (Task task : taskGroupList) {
-                            System.out.println(task.getName());
                             FlowTaskPo flowTaskPo = new FlowTaskPo();
                             // 代办任务ID
                             String taskId = task.getId();
@@ -197,6 +203,27 @@ public class QuoteProccessController {
                         }
                     }
                 }
+
+                // 已办任务查询
+                List<HistoricTaskInstance> userHistoricTask = processEngine.getHistoryService().createHistoricTaskInstanceQuery().taskAssignee(userId).list();
+                if (userHistoricTask != null && userHistoricTask.size() > 0) {
+                    for (HistoricTaskInstance historicTaskInstance : userHistoricTask) {
+                        FlowTaskPo flowTaskPo = new FlowTaskPo();
+                        // 已办任务ID
+                        String taskId = historicTaskInstance.getId();
+                        flowTaskPo.setTaskId(taskId);
+                        // 已办任务名称
+                        String taskName = historicTaskInstance.getName();
+                        flowTaskPo.setTaskName(taskName);
+                        // 流程实例主键
+                        String processInstanceId = historicTaskInstance.getProcessInstanceId();
+                        flowTaskPo.setProcessInstanceId(processInstanceId);
+                        // 任务类型
+                        flowTaskPo.setTaskType(FlowTaskPo.TASK_TYPE_OVER);
+
+                        flowTaskPoList.add(flowTaskPo);
+                    }
+                }
             } else {
                 throw new GlobalException("用户不能为空!");
             }
@@ -208,6 +235,7 @@ public class QuoteProccessController {
 
     /**
      * 用户认领任务
+     *
      * @return
      * @throws GlobalException
      */
@@ -227,18 +255,22 @@ public class QuoteProccessController {
 
             if (StringUtils.isNotEmpty(taskId) && StringUtils.isNotEmpty(userId) && StringUtils.isNotEmpty(processInstanceId) && StringUtils.isNotEmpty(taskName)) {
                 // 根据流程实例主键获取本流程中的产品主键
-                Integer pkProduct = runtimeService.getVariable(processInstanceId, "pkProduct") == null ? 0 : (Integer)runtimeService.getVariable(processInstanceId, "pkProduct");
-                // 认领采购报价任务
-                if ("采购报价".equals(taskName)) {
-                    iPurchaseService.claimPurchaseQuote(flowParamsPo.getUserid(), pkProduct, taskId);
-                }
-                // 认领工艺审核任务
-                if ("工艺审核".equals(taskName)) {
-                    iTechnicsService.claimTecaudit(flowParamsPo.getUserid(), pkProduct, taskId);
-                }
-                // 认领生产报价任务
-                if ("生产报价".equals(taskName)) {
-                    iProduceService.claimProduceQuote(flowParamsPo.getUserid(), pkProduct, taskId);
+                Integer pkProduct = runtimeService.getVariable(processInstanceId, "pkProduct") == null ? 0 : (Integer) runtimeService.getVariable(processInstanceId, "pkProduct");
+                String[] taskNameSplit = taskName.split("_");
+                if (taskNameSplit != null && taskNameSplit.length > 0 && StringUtils.isNotEmpty(taskNameSplit[0])) {
+                    String taskShowName = taskNameSplit[0];
+                    // 认领采购报价任务
+                    if ("采购报价".equals(taskShowName)) {
+                        iPurchaseService.claimPurchaseQuote(flowParamsPo.getUserid(), pkProduct, taskId);
+                    }
+                    // 认领工艺审核任务
+                    if ("工艺审核".equals(taskShowName)) {
+                        iTechnicsService.claimTecaudit(flowParamsPo.getUserid(), pkProduct, taskId);
+                    }
+                    // 认领生产报价任务
+                    if ("生产报价".equals(taskShowName)) {
+                        iProduceService.claimProduceQuote(flowParamsPo.getUserid(), pkProduct, taskId);
+                    }
                 }
                 taskService.claim(taskId, userId);
             } else {
@@ -251,6 +283,7 @@ public class QuoteProccessController {
 
     /**
      * 完成采购报价
+     *
      * @param billPurchaseQuotePo
      * @return
      * @throws GlobalException
@@ -269,6 +302,7 @@ public class QuoteProccessController {
 
     /**
      * 工艺审核通过
+     *
      * @return
      * @throws GlobalException
      */
@@ -286,6 +320,7 @@ public class QuoteProccessController {
 
     /**
      * 完成生成报价
+     *
      * @param billProduceQuoteHPo
      * @return
      * @throws GlobalException
@@ -304,6 +339,7 @@ public class QuoteProccessController {
 
     /**
      * 完成销售报价
+     *
      * @param billSaleQuotePo
      * @return
      * @throws GlobalException
@@ -317,6 +353,80 @@ public class QuoteProccessController {
             return iSaleService.updateSaleQuote(billSaleQuotePo);
         } else {
             throw new GlobalException("审核失败,任务信息为空!");
+        }
+    }
+
+    /**
+     * 生成流程图
+     * @param httpServletResponse
+     * @param flowParamsPo
+     * @throws GlobalException
+     */
+    @RequestMapping("processDiagram")
+    public void genProcessDiagram(HttpServletResponse httpServletResponse, @RequestBody FlowParamsPo flowParamsPo) throws GlobalException {
+        if (StringUtils.isNotEmpty(flowParamsPo.getProcessInstanceId()) || StringUtils.isNotEmpty(flowParamsPo.getTaskId())) {
+            String processInstanceId = "";
+            if (StringUtils.isNotEmpty(flowParamsPo.getProcessInstanceId())) {
+                processInstanceId = flowParamsPo.getProcessInstanceId();
+            } else {
+                Task task = taskService.createTaskQuery().taskId(flowParamsPo.getTaskId()).singleResult();
+                processInstanceId = task.getProcessInstanceId();
+                if (task == null) {
+                    throw new GlobalException("找不到任务信息!");
+                }
+            }
+
+            ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+            // 流程走完的不显示图
+            if (pi == null) {
+                throw new GlobalException("流程已完成!");
+            }
+            // 使用流程实例ID，查询正在执行的执行对象表，返回流程实例对象
+            List<Execution> executions = runtimeService
+                    .createExecutionQuery()
+                    .processInstanceId(pi.getId())
+                    .list();
+            // 得到正在执行的Activity的Id
+            List<String> activityIds = new ArrayList<>(); // 节点高亮
+            List<String> flows = new ArrayList<>(); // 连线高亮
+            for (Execution exe : executions) {
+                List<String> ids = runtimeService.getActiveActivityIds(exe.getId());
+                activityIds.addAll(ids);
+            }
+
+            // 获取流程图
+            BpmnModel bpmnModel = repositoryService.getBpmnModel(pi.getProcessDefinitionId());
+            ProcessEngineConfiguration engconf = processEngine.getProcessEngineConfiguration();
+            ProcessDiagramGenerator diagramGenerator = engconf.getProcessDiagramGenerator();
+            InputStream in = diagramGenerator.generateDiagram(bpmnModel, "png", activityIds, flows, engconf.getActivityFontName(), engconf.getLabelFontName(), engconf.getAnnotationFontName(), engconf.getClassLoader(), 1.0, true);
+            OutputStream out = null;
+            byte[] buf = new byte[1024];
+            int legth = 0;
+            try {
+                out = httpServletResponse.getOutputStream();
+                while ((legth = in.read(buf)) != -1) {
+                    out.write(buf, 0, legth);
+                }
+            } catch (IOException e) {
+                throw new GlobalException(e.getMessage());
+            } finally {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                        throw new GlobalException(e.getMessage());
+                    }
+                }
+                if (out != null) {
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                        throw new GlobalException(e.getMessage());
+                    }
+                }
+            }
+        } else {
+            throw new GlobalException("生成流程图失败,参数错误!");
         }
     }
 }

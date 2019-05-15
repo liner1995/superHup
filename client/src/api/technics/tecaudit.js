@@ -4,7 +4,7 @@ import request from '@/utils/request'
 export function listTecaudit(data) {
   data.billState = 1
   return request({
-      url: '/sale/selectAllProductAsPage',
+      url: '/technics/selectAllTechniceAsPage',
       method: 'post',
       data
   })
