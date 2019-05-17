@@ -6,6 +6,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.0.8.RELEASE</version>
+
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>cn</groupId>
@@ -13,6 +14,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>hups</name>
     <description>PUBTOHUB</description>
+    <packaging>war</packaging>
 
     <properties>
         <java.version>1.8</java.version>
@@ -72,7 +74,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
-            <!--<scope>provided</scope>-->
+            <scope>provided</scope>
         </dependency>
 
         <!-- fastJson 用于处理前后端数据交互问题  -->
