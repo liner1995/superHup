@@ -2,7 +2,9 @@ package cn.hups.technics.service.impl;
 
 import cn.hups.common.constract.RefConstract;
 import cn.hups.common.exception.GlobalException;
+import cn.hups.common.po.Auth;
 import cn.hups.common.utils.AjaxJson;
+import cn.hups.common.utils.AuthUtil;
 import cn.hups.common.utils.DateUtils;
 import cn.hups.common.utils.StringUtils;
 import cn.hups.produce.dao.BillProduceQuoteBMapper;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * 工艺管理实现类
@@ -35,6 +38,31 @@ public class TechnicsServiceImpl implements ITechnicsService {
 
     @Resource
     private BillProduceQuoteBMapper billProduceQuoteBMapper;
+
+    /**
+     * 分页查询工艺审核
+     * @param bdProductPo
+     * @return
+     * @throws GlobalException
+     */
+    public AjaxJson selectAllTechniceAsPage(BdProductPo bdProductPo) throws GlobalException {
+        AjaxJson ajaxJson = new AjaxJson();
+
+        try {
+            // 认领任务之后才能查询数据
+            Auth auth = AuthUtil.getAuth();
+            bdProductPo.setApprover(auth.getUserid());
+
+            Long countNum = bdProductMapperExpand.countData(bdProductPo);
+            List<BdProductPo> resultList = bdProductMapperExpand.selectAllProductAsPage(bdProductPo);
+            ajaxJson.setObj(resultList);
+            ajaxJson.setTotal(countNum);
+        }catch (SQLException e) {
+            throw new GlobalException(e.getMessage());
+        }
+
+        return ajaxJson;
+    }
 
     /**
      * 工艺审核通过

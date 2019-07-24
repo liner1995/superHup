@@ -9,6 +9,8 @@ public class FlowTaskPo {
     public static final String TASK_TYPE_CLAIM = "claim";
     // 个人任务
     public static final String TASK_TYPE_TODO = "todo";
+    // 已办任务
+    public static final String TASK_TYPE_OVER = "over";
 
     // 任务主键
     private String taskId;

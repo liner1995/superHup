@@ -7,6 +7,9 @@ public class QuoteFlowParam extends FlowParamsPo {
     // 产品主键
     private Integer pkProduct;
 
+    // 任务标题
+    private String flowTitle;
+
     // 客户信息
     private Integer pkCustomer;
 
@@ -19,6 +22,14 @@ public class QuoteFlowParam extends FlowParamsPo {
 
     public void setPkProduct(Integer pkProduct) {
         this.pkProduct = pkProduct;
+    }
+
+    public String getFlowTitle() {
+        return flowTitle;
+    }
+
+    public void setFlowTitle(String flowTitle) {
+        this.flowTitle = flowTitle;
     }
 
     public Integer getPkCustomer() {

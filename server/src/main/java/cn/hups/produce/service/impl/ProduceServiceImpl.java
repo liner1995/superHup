@@ -1,6 +1,7 @@
 package cn.hups.produce.service.impl;
 
 import cn.hups.common.exception.GlobalException;
+import cn.hups.common.po.Auth;
 import cn.hups.common.utils.AjaxJson;
 import cn.hups.common.utils.AuthUtil;
 import cn.hups.common.utils.DateUtils;
@@ -51,6 +52,10 @@ public class ProduceServiceImpl implements IProduceService {
         AjaxJson ajaxJson = new AjaxJson();
 
         try {
+            // 任务认领后才能查询到单据
+            Auth auth = AuthUtil.getAuth();
+            billProduceQuoteHPo.setApprover(auth.getUserid());
+
             Long countNum = billProduceQuoteHMapperExpand.countData(billProduceQuoteHPo);
             List<BillProduceQuoteHPo> resultList = billProduceQuoteHMapperExpand.selectAllProduceQuoteAsPage(billProduceQuoteHPo);
             ajaxJson.setTotal(countNum);

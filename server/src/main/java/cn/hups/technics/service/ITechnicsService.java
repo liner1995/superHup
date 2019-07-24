@@ -10,6 +10,14 @@ import cn.hups.salemage.po.BdProductPo;
 public interface ITechnicsService {
 
     /**
+     * 分页查询工艺审核
+     * @param bdProductPo
+     * @return
+     * @throws GlobalException
+     */
+    AjaxJson selectAllTechniceAsPage(BdProductPo bdProductPo) throws GlobalException;
+
+    /**
      * 工艺审核通过
      * @param bdProductPo
      * @return

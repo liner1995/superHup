@@ -1,6 +1,7 @@
 package cn.hups.purchase.service.impl;
 
 import cn.hups.common.exception.GlobalException;
+import cn.hups.common.po.Auth;
 import cn.hups.common.utils.*;
 import cn.hups.purchase.dao.BillPurchaseQuoteMapper;
 import cn.hups.purchase.dao.BillPurchaseQuoteMapperExpand;
@@ -45,6 +46,10 @@ public class PurchaseServiceImpl implements IPurchaseService {
         AjaxJson ajaxJson = new AjaxJson();
 
         try {
+            // 认领任务后才能查询到数据
+            Auth auth = AuthUtil.getAuth();
+            billPurchaseQuotePo.setApprover(auth.getUserid());
+
             Long countNum = billPurchaseQuoteMapperExpand.countData(billPurchaseQuotePo);
             List<BillPurchaseQuotePo> resultList = billPurchaseQuoteMapperExpand.selectAllPurchaseQuoteAsPage(billPurchaseQuotePo);
             ajaxJson.setTotal(countNum);

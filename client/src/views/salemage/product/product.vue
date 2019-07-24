@@ -138,7 +138,13 @@ export default {
       if (param.btnCode === 'COMMIT') {
         debugger
         let userid = this.$store.getters.userid
-        let commitParam = { pkCustomer: param.bindData.pkCustomer, pkProduct: param.bindData.pkProduct, pkPsndoc: param.bindData.pkPsndoc, userid: userid }
+        let commitParam = { 
+          pkCustomer: param.bindData.pkCustomer, 
+          pkProduct: param.bindData.pkProduct, 
+          pkPsndoc: param.bindData.pkPsndoc, 
+          flowTitle: param.bindData.code, 
+          userid: userid 
+        }
         commitProduct(commitParam).then((response) => {
           this.$message({ message: '送审工艺部门成功!', type: 'success' })
           param.bindData.billState = '工艺审核态'
